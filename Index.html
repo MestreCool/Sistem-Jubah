@@ -115,67 +115,192 @@
         </div>
     </div>
 
-    <script>
-        // Logik Tukar Tab
-function tukarTab(tab) {
+<script>
+        // 1. MASUKKAN LINK GOOGLE APPS SCRIPT ANDA DI SINI
+        const API_URL = "https://script.google.com/macros/s/AKfycbwIwZ72ujJSAqejm8N1qjkg1hjxvW4WJD7fcBp5L7vlidKfjyNo8C5ukZGRqTBP_ygb/exec"; 
+
+        // Letakkan pembolehubah global untuk simpan semua data murid dari sheet
+        let semuaDataMurid = [];
+
+        // Fungsi Load Data secara automatik bila laman web dibuka
+        window.onload = function() {
+            loadDataDariSheet();
+        };
+
+        // Fungsi untuk ambil data dari Google Sheet
+        async function loadDataDariSheet() {
+            try {
+                const response = await fetch(API_URL);
+                semuaDataMurid = await response.json();
+                binaJadualAdmin(semuaDataMurid);
+            } catch (error) {
+                console.error("Gagal mengambil data:", error);
+            }
+        }
+
+        // Logik Tukar Tab dengan Keselamatan Kata Laluan Admin
+        function tukarTab(tab) {
             const utm = document.getElementById('tabUtama');
             const adm = document.getElementById('tabAdmin');
             const utmBtn = document.getElementById('tabUtamaBtn');
             const admBtn = document.getElementById('tabAdminBtn');
 
             if(tab === 'utama') {
-                // Sentiasa benarkan masuk ke paparan Utama
                 utm.classList.remove('hidden'); 
                 adm.classList.add('hidden');
                 utmBtn.classList.add('bg-blue-700'); 
                 admBtn.classList.remove('bg-blue-700');
             } else if (tab === 'admin') {
-                // Minta kata laluan apabila nak masuk paparan Admin
                 let password = prompt("Sila masukkan kata laluan Admin:");
-                
-                // Semak jika kata laluan betul
                 if (password === "voxmajuterus") {
                     adm.classList.remove('hidden'); 
                     utm.classList.add('hidden');
                     admBtn.classList.add('bg-blue-700'); 
                     utmBtn.classList.remove('bg-blue-700');
+                    loadDataDariSheet(); // Refresh data setiap kali masuk tab admin
                 } else if (password !== null) {
-                    // Jika salah (dan pengguna tidak tekan butang 'Cancel')
-                    alert("Maaf, kata laluan salah! Anda tidak dibenarkan mengakses paparan ini.");
+                    alert("Maaf, kata laluan salah!");
                 }
             }
         }
 
-        // Fungsi Carian Tab Utama
+        // Fungsi Carian Tab Utama (Berdasarkan Data Sebenar Sheet)
         function buatCarian() {
-            // Simulasi data jumpa (Nanti sambung fetch dari API Google Sheet)
-            document.getElementById('hasilCarianCard').classList.remove('hidden');
-            document.getElementById('detNama').innerText = "Ahmad Bin Ali";
-            document.getElementById('detKelas').innerText = "5 Alpha";
-            document.getElementById('editAlamatUtama').value = "No 1, Jalan Melati";
-            document.getElementById('editEmailUtama').value = "ahmad@email.com";
+            const kataKunci = document.getElementById('carianInput').value.trim().toLowerCase();
+            if (!kataKunci) {
+                alert("Sila masukkan nama murid untuk carian.");
+                return;
+            }
+
+            // Cari nama murid yang mengandungi kata kunci (Gunakan nama kolum 'Nama' mengikut header sheet anda)
+            const murid = semuaDataMurid.find(m => m.Nama && m.Nama.toLowerCase().includes(kataKunci));
+
+            if (murid) {
+                const card = document.getElementById('hasilCarianCard');
+                card.classList.remove('hidden');
+                
+                // Papar maklumat lama
+                document.getElementById('detNama').innerText = murid.Nama;
+                document.getElementById('detKelas').innerText = murid.Kelas || "-";
+                document.getElementById('editAlamatUtama').value = murid.Alamat || "";
+                document.getElementById('editEmailUtama').value = murid.Email || "";
+                
+                // Simpan row number pada elemen kad untuk rujukan kemas kini nanti
+                card.dataset.rowNumber = murid.rowNumber;
+            } else {
+                alert("Murid tidak dijumpai dalam sistem.");
+                document.getElementById('hasilCarianCard').classList.add('hidden');
+            }
         }
 
-        function simpanDataUtama() {
-            alert('Maklumat alamat/email dikemaskini & Status jubah ditanda: TELAH PULANG');
+        // Fungsi Simpan & Pulang Jubah (Tab Utama)
+        async function simpanDataUtama() {
+            const card = document.getElementById('hasilCarianCard');
+            const rowNumber = card.dataset.rowNumber;
+            const alamat = document.getElementById('editAlamatUtama').value;
+            const email = document.getElementById('editEmailUtama').value;
+
+            if (!rowNumber) return;
+
+            const payload = {
+                action: "updateMurid",
+                rowNumber: parseInt(rowNumber),
+                alamat: alamat,
+                email: email,
+                statusJubah: "Telah Pulang" // Ditanda automatik bila klik butang pulangan
+            };
+
+            alert("Sedang mengemaskini data ke Google Sheets, mohon tunggu...");
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const hasil = await response.json();
+                
+                if (hasil.status === "success") {
+                    alert("Selesai! Alamat/Email dikemaskini & Jubah ditanda 'Telah Pulang'.");
+                    document.getElementById('hasilCarianCard').classList.add('hidden');
+                    document.getElementById('carianInput').value = "";
+                    loadDataDariSheet(); // Tarik data baru
+                }
+            } catch (error) {
+                alert("Ralat berlaku semasa menyimpan data.");
+                console.error(error);
+            }
         }
+
+        // Fungsi Bina Jadual Senarai Murid dalam Tab Admin
+        function binaJadualAdmin(data) {
+            const tbody = document.getElementById('adminTableBody');
+            tbody.innerHTML = ""; // Kosongkan placeholder asal
+
+            data.forEach(murid => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-gray-50 border-b text-sm";
+                // Bila baris diklik, buka pop-up admin dan hantar data murid tersebut
+                tr.onclick = () => bukaPopupAdmin(murid);
+
+                // Pastikan nama property (cth: murid.Nama, murid.Kelas) sepadan dengan tulisan header di Google Sheet anda
+                tr.innerHTML = `
+                    <td class="p-3 border">${murid.Nama || ''}</td>
+                    <td class="p-3 border">${murid.Kelas || ''}</td>
+                    <td class="p-3 border">${murid.Alamat || ''}</td>
+                    <td class="p-3 border">${murid.Email || ''}</td>
+                    <td class="p-3 border ${murid.Status === 'Telah Pulang' ? 'text-green-600 font-semibold' : 'text-red-500'}">
+                        ${murid.Status || 'Belum Pulang'}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Pembolehubah untuk simpan rujukan murid yang sedang diedit di modal admin
+        let rowEditAdmin = null;
 
         // Fungsi Pop-up Admin
-        function bukaPopupAdmin() {
+        function bukaPopupAdmin(murid) {
+            rowEditAdmin = murid.rowNumber;
             document.getElementById('adminModal').classList.remove('hidden');
-            document.getElementById('modalNama').value = "Ahmad Bin Ali";
-            document.getElementById('modalKelas').value = "5 Alpha";
-            document.getElementById('modalAlamat').value = "No 1, Jalan Melati";
-            document.getElementById('modalEmail').value = "ahmad@email.com";
+            document.getElementById('modalNama').value = murid.Nama || "";
+            document.getElementById('modalKelas').value = murid.Kelas || "";
+            document.getElementById('modalAlamat').value = murid.Alamat || "";
+            document.getElementById('modalEmail').value = murid.Email || "";
         }
 
         function tutupPopupAdmin() {
             document.getElementById('adminModal').classList.add('hidden');
+            rowEditAdmin = null;
         }
 
-        function simpanDataAdmin() {
-            alert('Data berjaya dikemaskini oleh Admin!');
-            tutupPopupAdmin();
+        // Fungsi Simpan Perubahan oleh Admin
+        async function simpanDataAdmin() {
+            if (!rowEditAdmin) return;
+
+            const payload = {
+                action: "updateMurid",
+                rowNumber: parseInt(rowEditAdmin),
+                alamat: document.getElementById('modalAlamat').value,
+                email: document.getElementById('modalEmail').value
+                // Tambahkan atau sesuaikan parameter jika admin ingin kemaskini nama/kelas/status di Apps Script anda
+            };
+
+            try {
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    body: JSON.stringify(payload)
+                });
+                const hasil = await response.json();
+                
+                if (hasil.status === "success") {
+                    alert("Data berjaya dikemaskini oleh Admin!");
+                    tutupPopupAdmin();
+                    loadDataDariSheet(); // Segarkan senarai jadual
+                }
+            } catch (error) {
+                alert("Gagal mengemaskini data admin.");
+            }
         }
 
         // Fungsi Cetak Laporan
