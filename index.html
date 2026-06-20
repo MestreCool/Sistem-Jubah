@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="ms">
+<!-- Tailwind CSS untuk Reka Bentuk Responsif & Korporat -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- TAMBAH KOD INI: Library untuk Carta -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,7 +66,11 @@
                     🖨️ Cetak / Muat Turun Laporan
                 </button>
             </div>
-
+<!-- RUANG CARTA ANALISIS -->
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 max-w-sm mx-auto w-full">
+                <h3 class="text-lg font-bold text-center text-blue-900 mb-2">Statistik Pemulangan Jubah</h3>
+                <canvas id="cartaStatus"></canvas>
+            </div>
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="jadualLaporan">
                     <thead>
@@ -133,6 +142,8 @@
                 const response = await fetch(API_URL);
                 semuaDataMurid = await response.json();
                 binaJadualAdmin(semuaDataMurid);
+                // TAMBAH BARIS INI: Untuk sentiasa kemas kini carta selepas jadual dibina
+                kemaskiniCarta(semuaDataMurid);
             } catch (error) {
                 console.error("Gagal mengambil data:", error);
             }
@@ -306,6 +317,52 @@
         // Fungsi Cetak Laporan
         function cetakLaporan() {
             window.print();
+        }
+    // Pembolehubah untuk simpan carta
+        let cartaJubah = null;
+
+        // Fungsi Bina/Kemas kini Carta Analisis
+        function kemaskiniCarta(data) {
+            let sudahPulang = 0;
+            let belumPulang = 0;
+
+            // Kira jumlah berdasarkan status (Pastikan ejaan sama dengan Google Sheet)
+            data.forEach(murid => {
+                if (murid.Status === 'Telah Pulang') {
+                    sudahPulang++;
+                } else {
+                    belumPulang++;
+                }
+            });
+
+            const ctx = document.getElementById('cartaStatus');
+
+            // Reset carta jika ia sudah wujud (elak carta bertindih bila di-refresh)
+            if (cartaJubah != null) {
+                cartaJubah.destroy();
+            }
+
+            // Bina carta donat
+            cartaJubah = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Telah Pulang', 'Belum Pulang'],
+                    datasets: [{
+                        data: [sudahPulang, belumPulang],
+                        backgroundColor: ['#16a34a', '#dc2626'], // Hijau untuk pulang, Merah untuk belum
+                        borderWidth: 2,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    }
+                }
+            });
         }
     </script>
 </body>
