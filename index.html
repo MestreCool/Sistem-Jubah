@@ -156,7 +156,7 @@
 
     <script>
         // ⚠️ GANTIKAN DENGAN URL GOOGLE APPS SCRIPT SEBENAR ANDA
-        const API_URL = "PASTE_URL_WEB_APP_ANDA_DI_SINI"; 
+        const API_URL = "https://script.google.com/macros/s/AKfycbxx_1gySw7ZtaUBhLerrPgqTpbS9jfjY2ko52_XYjkuoqXcAjxNzgq1OPmkwjKDqhiK/exec"; 
 
         let semuaDataMurid = [];
         let cartaJubah = null;
@@ -185,7 +185,7 @@
         }
 
         async function loadDataDariSheet() {
-            if (API_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return;
+            if (API_URL === "https://script.google.com/macros/s/AKfycbxx_1gySw7ZtaUBhLerrPgqTpbS9jfjY2ko52_XYjkuoqXcAjxNzgq1OPmkwjKDqhiK/exec") return;
             try {
                 const response = await fetch(API_URL);
                 semuaDataMurid = await response.json();
