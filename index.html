@@ -26,7 +26,7 @@
         
         <section id="tabUtama" class="block space-y-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-2xl mx-auto">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4 text-center">Carian & Kemaskini Jubah</h2>
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 text-center">Carian Nama Murid</h2>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="carianInput" placeholder="Masukkan nama murid..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <button onclick="buatCarian()" class="w-full sm:w-auto bg-blue-900 text-white px-6 py-2 rounded-md hover:bg-blue-800 transition">Cari</button>
@@ -185,7 +185,6 @@
         }
 
         async function loadDataDariSheet() {
-            if (API_URL = "https://script.google.com/macros/s/AKfycbwY-n83B-vT1wPrlVj_qiCwtCzLMmuHDAoWoidbCmiOUm_jaIxe49dTsMKkauoeZ0Jc/exec") return;
             try {
                 const response = await fetch(API_URL);
                 semuaDataMurid = await response.json();
