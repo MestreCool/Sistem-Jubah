@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="ms">
-<!-- Tailwind CSS untuk Reka Bentuk Responsif & Korporat -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- TAMBAH KOD INI: Library untuk Carta -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Pemulangan Jubah Murid</title>
+    <title>Sistem Pengurusan Jubah Murid</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800">
 
     <header class="bg-blue-900 text-white shadow-md sticky top-0 z-50">
         <div class="container mx-auto px-4 py-3 flex flex-col sm:flex-row justify-between items-center">
             <div class="flex items-center space-x-3 mb-3 sm:mb-0">
-                <img src="https://i.postimg.cc/hvFcWhpB/LOGO-KOPERASI-01-20241218-083225-0000.png" class="h-10 w-10 object-contain bg-white rounded-full p-1">
-                <h1 class="text-xl font-bold tracking-wide">SISTEM JUBAH</h1>
+                <img src="logo.png" alt="Logo Koperasi" class="h-10 w-10 object-contain bg-white rounded-full p-1" onerror="this.src='https://via.placeholder.com/50'">
+                <h1 class="text-xl font-bold tracking-wide">SISTEM JUBAH KOPERASI</h1>
             </div>
             <nav class="flex space-x-2">
                 <button id="tabUtamaBtn" onclick="tukarTab('utama')" class="px-4 py-2 bg-blue-700 rounded-md font-medium transition duration-200">Utama</button>
@@ -30,7 +26,7 @@
         
         <section id="tabUtama" class="block space-y-6">
             <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-2xl mx-auto">
-                <h2 class="text-2xl font-bold text-blue-900 mb-4 text-center">Carian Pemulangan Jubah</h2>
+                <h2 class="text-2xl font-bold text-blue-900 mb-4 text-center">Carian & Kemaskini Jubah</h2>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="carianInput" placeholder="Masukkan nama murid..." class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600">
                     <button onclick="buatCarian()" class="w-full sm:w-auto bg-blue-900 text-white px-6 py-2 rounded-md hover:bg-blue-800 transition">Cari</button>
@@ -48,13 +44,20 @@
                         <label class="block text-sm font-medium text-gray-600">Alamat</label>
                         <input type="text" id="editAlamatUtama" class="w-full mt-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600">
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-600">Email</label>
-                        <input type="email" id="editEmailUtama" class="w-full mt-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">No. Telefon</label>
+                            <input type="text" id="editTelefonUtama" class="w-full mt-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-600">No. Siri Jubah</label>
+                            <input type="text" id="editSiriUtama" class="w-full mt-1 px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-600" placeholder="Cth: J-001">
+                        </div>
                     </div>
                 </div>
                 <div class="pt-4 flex flex-col sm:flex-row gap-2 justify-end">
-                    <button onclick="simpanDataUtama()" class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition">Sahkan & Pulang Jubah</button>
+                    <button onclick="simpanDataUtama('Pinjam')" class="bg-amber-500 text-white px-5 py-2 rounded-md hover:bg-amber-600 transition font-medium">Sahkan & Pinjam</button>
+                    <button onclick="simpanDataUtama('Pulang')" class="bg-green-600 text-white px-5 py-2 rounded-md hover:bg-green-700 transition font-medium">Sahkan & Pulang Jubah</button>
                 </div>
             </div>
         </section>
@@ -66,31 +69,28 @@
                     🖨️ Cetak / Muat Turun Laporan
                 </button>
             </div>
-<!-- RUANG CARTA ANALISIS -->
-            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 max-w-sm mx-auto w-full">
-                <h3 class="text-lg font-bold text-center text-blue-900 mb-2">Statistik Pemulangan Jubah</h3>
+
+            <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 max-w-xs mx-auto w-full">
+                <h3 class="text-md font-bold text-center text-blue-900 mb-2">Statistik Semasa Jubah</h3>
                 <canvas id="cartaStatus"></canvas>
             </div>
+
             <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="jadualLaporan">
                     <thead>
-                        <tr class="bg-blue-900 text-white text-sm">
+                        <tr class="bg-blue-900 text-white text-sm whitespace-nowrap">
                             <th class="p-3 border">Nama</th>
                             <th class="p-3 border">Kelas</th>
                             <th class="p-3 border">Alamat</th>
-                            <th class="p-3 border">Email</th>
-                            <th class="p-3 border">Status Jubah</th>
+                            <th class="p-3 border">No. Telefon</th>
+                            <th class="p-3 border">No. Siri Jubah</th>
+                            <th class="p-3 border">Status</th>
+                            <th class="p-3 border">Tarikh Pinjam</th>
+                            <th class="p-3 border">Tarikh Pulang</th>
                         </tr>
                     </thead>
                     <tbody id="adminTableBody" class="text-sm cursor-pointer">
-                        <tr class="hover:bg-gray-50" onclick="bukaPopupAdmin()">
-                            <td class="p-3 border">Ahmad Bin Ali</td>
-                            <td class="p-3 border">5 Alpha</td>
-                            <td class="p-3 border">No 1, Jalan Melati</td>
-                            <td class="p-3 border">ahmad@email.com</td>
-                            <td class="p-3 border text-green-600 font-semibold">Selesai</td>
-                        </tr>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </section>
@@ -102,54 +102,100 @@
             <div class="space-y-3">
                 <div>
                     <label class="block text-sm font-medium">Nama</label>
-                    <input type="text" id="modalNama" class="w-full mt-1 px-3 py-2 border rounded-md">
+                    <input type="text" id="modalNama" class="w-full mt-1 px-3 py-2 border rounded-md bg-gray-100" readonly>
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Kelas</label>
-                    <input type="text" id="modalKelas" class="w-full mt-1 px-3 py-2 border rounded-md">
+                    <input type="text" id="modalKelas" class="w-full mt-1 px-3 py-2 border rounded-md bg-gray-100" readonly>
                 </div>
                 <div>
                     <label class="block text-sm font-medium">Alamat</label>
                     <input type="text" id="modalAlamat" class="w-full mt-1 px-3 py-2 border rounded-md">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium">Email</label>
-                    <input type="email" id="modalEmail" class="w-full mt-1 px-3 py-2 border rounded-md">
+                    <label class="block text-sm font-medium">No. Telefon</label>
+                    <input type="text" id="modalTelefon" class="w-full mt-1 px-3 py-2 border rounded-md">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium">No. Siri Jubah</label>
+                    <input type="text" id="modalSiri" class="w-full mt-1 px-3 py-2 border rounded-md">
+                </div>
+                <div class="grid grid-cols-2 gap-2 border-t pt-2">
+                    <div>
+                        <label class="block text-xs font-medium">Pinjam Jubah</label>
+                        <select id="modalPinjamJubah" class="w-full mt-1 px-2 py-1 text-sm border rounded-md">
+                            <option value="">-</option>
+                            <option value="Ya">Ya</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium">Telah Pulang</label>
+                        <select id="modalTelahPulang" class="w-full mt-1 px-2 py-1 text-sm border rounded-md">
+                            <option value="">-</option>
+                            <option value="Ya">Ya</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-gray-500 text-[11px]">
+                    <div>
+                        <label class="block font-medium">Masa Rekod Pinjam:</label>
+                        <span id="modalTextPinjam">-</span>
+                    </div>
+                    <div>
+                        <label class="block font-medium">Masa Rekod Pulang:</label>
+                        <span id="modalTextPulang">-</span>
+                    </div>
                 </div>
             </div>
             <div class="flex justify-end space-x-2 pt-2">
                 <button onclick="tutupPopupAdmin()" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">Batal</button>
-                <button onclick="simpanDataAdmin()" class="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800">Simpan Changes</button>
+                <button onclick="simpanDataAdmin()" class="bg-blue-900 text-white px-4 py-2 rounded-md hover:bg-blue-800">Simpan Perubahan</button>
             </div>
         </div>
     </div>
 
-<script>
-        // 1. MASUKKAN LINK GOOGLE APPS SCRIPT ANDA DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbwIwZ72ujJSAqejm8N1qjkg1hjxvW4WJD7fcBp5L7vlidKfjyNo8C5ukZGRqTBP_ygb/exec"; 
+    <script>
+        // ⚠️ GANTIKAN DENGAN URL GOOGLE APPS SCRIPT SEBENAR ANDA
+        const API_URL = "PASTE_URL_WEB_APP_ANDA_DI_SINI"; 
 
-        // Letakkan pembolehubah global untuk simpan semua data murid dari sheet
         let semuaDataMurid = [];
+        let cartaJubah = null;
 
-        // Fungsi Load Data secara automatik bila laman web dibuka
         window.onload = function() {
             loadDataDariSheet();
         };
 
-        // Fungsi untuk ambil data dari Google Sheet
+        // Mengemaskan susunan tarikh paparan website
+        function formatTarikh(isoString) {
+            if (!isoString) return "-";
+            try {
+                const d = new Date(isoString);
+                if (isNaN(d.getTime())) return isoString;
+                
+                const hari = String(d.getDate()).padStart(2, '0');
+                const bulan = String(d.getMonth() + 1).padStart(2, '0');
+                const tahun = d.getFullYear();
+                const jam = String(d.getHours()).padStart(2, '0');
+                const minit = String(d.getMinutes()).padStart(2, '0');
+                
+                return `${hari}/${bulan}/${tahun} ${jam}:${minit}`;
+            } catch (e) {
+                return isoString;
+            }
+        }
+
         async function loadDataDariSheet() {
+            if (API_URL === "PASTE_URL_WEB_APP_ANDA_DI_SINI") return;
             try {
                 const response = await fetch(API_URL);
                 semuaDataMurid = await response.json();
                 binaJadualAdmin(semuaDataMurid);
-                // TAMBAH BARIS INI: Untuk sentiasa kemas kini carta selepas jadual dibina
                 kemaskiniCarta(semuaDataMurid);
             } catch (error) {
                 console.error("Gagal mengambil data:", error);
             }
         }
 
-        // Logik Tukar Tab dengan Keselamatan Kata Laluan Admin
         function tukarTab(tab) {
             const utm = document.getElementById('tabUtama');
             const adm = document.getElementById('tabAdmin');
@@ -157,25 +203,20 @@
             const admBtn = document.getElementById('tabAdminBtn');
 
             if(tab === 'utama') {
-                utm.classList.remove('hidden'); 
-                adm.classList.add('hidden');
-                utmBtn.classList.add('bg-blue-700'); 
-                admBtn.classList.remove('bg-blue-700');
-            } else if (tab === 'admin') {
+                utm.classList.remove('hidden'); adm.classList.add('hidden');
+                utmBtn.classList.add('bg-blue-700'); admBtn.classList.remove('bg-blue-700');
+            } else {
                 let password = prompt("Sila masukkan kata laluan Admin:");
                 if (password === "voxmajuterus") {
-                    adm.classList.remove('hidden'); 
-                    utm.classList.add('hidden');
-                    admBtn.classList.add('bg-blue-700'); 
-                    utmBtn.classList.remove('bg-blue-700');
-                    loadDataDariSheet(); // Refresh data setiap kali masuk tab admin
+                    adm.classList.remove('hidden'); utm.classList.add('hidden');
+                    admBtn.classList.add('bg-blue-700'); utmBtn.classList.remove('bg-blue-700');
+                    loadDataDariSheet();
                 } else if (password !== null) {
                     alert("Maaf, kata laluan salah!");
                 }
             }
         }
 
-        // Fungsi Carian Tab Utama (Berdasarkan Data Sebenar Sheet)
         function buatCarian() {
             const kataKunci = document.getElementById('carianInput').value.trim().toLowerCase();
             if (!kataKunci) {
@@ -183,20 +224,16 @@
                 return;
             }
 
-            // Cari nama murid yang mengandungi kata kunci (Gunakan nama kolum 'Nama' mengikut header sheet anda)
             const murid = semuaDataMurid.find(m => m.Nama && m.Nama.toLowerCase().includes(kataKunci));
 
             if (murid) {
                 const card = document.getElementById('hasilCarianCard');
                 card.classList.remove('hidden');
-                
-                // Papar maklumat lama
                 document.getElementById('detNama').innerText = murid.Nama;
                 document.getElementById('detKelas').innerText = murid.Kelas || "-";
-                document.getElementById('editAlamatUtama').value = murid.Alamat || "";
-                document.getElementById('editEmailUtama').value = murid.Email || "";
-                
-                // Simpan row number pada elemen kad untuk rujukan kemas kini nanti
+                document.getElementById('editAlamatUtama').value = murid['Alamat'] || "";
+                document.getElementById('editTelefonUtama').value = murid['No. Telefon'] || "";
+                document.getElementById('editSiriUtama').value = murid['No. Siri Jubah'] || "";
                 card.dataset.rowNumber = murid.rowNumber;
             } else {
                 alert("Murid tidak dijumpai dalam sistem.");
@@ -204,24 +241,25 @@
             }
         }
 
-        // Fungsi Simpan & Pulang Jubah (Tab Utama)
-        async function simpanDataUtama() {
+        async function simpanDataUtama(jenisAksi) {
             const card = document.getElementById('hasilCarianCard');
             const rowNumber = card.dataset.rowNumber;
             const alamat = document.getElementById('editAlamatUtama').value;
-            const email = document.getElementById('editEmailUtama').value;
+            const telefon = document.getElementById('editTelefonUtama').value;
+            const siri = document.getElementById('editSiriUtama').value;
 
             if (!rowNumber) return;
 
             const payload = {
                 action: "updateMurid",
+                type: jenisAksi, // "Pinjam" atau "Pulang"
                 rowNumber: parseInt(rowNumber),
                 alamat: alamat,
-                email: email,
-                statusJubah: "Telah Pulang" // Ditanda automatik bila klik butang pulangan
+                noTelefon: telefon,
+                noSiriJubah: siri
             };
 
-            alert("Sedang mengemaskini data ke Google Sheets, mohon tunggu...");
+            alert("Sedang memproses rekod ke pangkalan data...");
 
             try {
                 const response = await fetch(API_URL, {
@@ -231,53 +269,78 @@
                 const hasil = await response.json();
                 
                 if (hasil.status === "success") {
-                    alert("Selesai! Alamat/Email dikemaskini & Jubah ditanda 'Telah Pulang'.");
+                    alert(`Berjaya memproses tindakan: ${jenisAksi === 'Pinjam' ? 'Pinjam Jubah' : 'Pulang Jubah'}`);
                     document.getElementById('hasilCarianCard').classList.add('hidden');
                     document.getElementById('carianInput').value = "";
-                    loadDataDariSheet(); // Tarik data baru
+                    loadDataDariSheet();
                 }
             } catch (error) {
                 alert("Ralat berlaku semasa menyimpan data.");
-                console.error(error);
             }
         }
 
-        // Fungsi Bina Jadual Senarai Murid dalam Tab Admin
+        function dapatkanStatusTeks(murid) {
+            const dipulang = murid['Telah Pulang'];
+            const dipinjam = murid['Pinjam Jubah'];
+            
+            if (dipulang === "Ya" || dipulang === "ya") {
+                return "Telah Pulang";
+            } else if (dipinjam === "Ya" || dipinjam === "ya") {
+                return "Dipinjam";
+            } else {
+                return "Belum Pinjam";
+            }
+        }
+
         function binaJadualAdmin(data) {
             const tbody = document.getElementById('adminTableBody');
-            tbody.innerHTML = ""; // Kosongkan placeholder asal
+            tbody.innerHTML = "";
 
             data.forEach(murid => {
                 const tr = document.createElement('tr');
-                tr.className = "hover:bg-gray-50 border-b text-sm";
-                // Bila baris diklik, buka pop-up admin dan hantar data murid tersebut
+                tr.className = "hover:bg-gray-50 border-b text-sm whitespace-nowrap";
                 tr.onclick = () => bukaPopupAdmin(murid);
 
-                // Pastikan nama property (cth: murid.Nama, murid.Kelas) sepadan dengan tulisan header di Google Sheet anda
+                const status = dapatkanStatusTeks(murid);
+                let statusBadge = "";
+                if (status === "Telah Pulang") {
+                    statusBadge = `<span class="text-green-600 font-bold">🟢 Telah Pulang</span>`;
+                } else if (status === "Dipinjam") {
+                    statusBadge = `<span class="text-amber-500 font-bold">🟡 Dipinjam</span>`;
+                } else {
+                    statusBadge = `<span class="text-red-500 font-medium">🔴 Belum Pinjam</span>`;
+                }
+
                 tr.innerHTML = `
-                    <td class="p-3 border">${murid.Nama || ''}</td>
-                    <td class="p-3 border">${murid.Kelas || ''}</td>
-                    <td class="p-3 border">${murid.Alamat || ''}</td>
-                    <td class="p-3 border">${murid.Email || ''}</td>
-                    <td class="p-3 border ${murid.Status === 'Telah Pulang' ? 'text-green-600 font-semibold' : 'text-red-500'}">
-                        ${murid.Status || 'Belum Pulang'}
-                    </td>
+                    <td class="p-3 border font-medium text-gray-900">${murid['Nama'] || ''}</td>
+                    <td class="p-3 border">${murid['Kelas'] || ''}</td>
+                    <td class="p-3 border max-w-xs truncate">${murid['Alamat'] || ''}</td>
+                    <td class="p-3 border">${murid['No. Telefon'] || ''}</td>
+                    <td class="p-3 border font-mono">${murid['No. Siri Jubah'] || ''}</td>
+                    <td class="p-3 border">${statusBadge}</td>
+                    <td class="p-3 border text-gray-500">${formatTarikh(murid['Tarikh-Masa Pinjam'])}</td>
+                    <td class="p-3 border text-gray-500">${formatTarikh(murid['Tarikh-Masa Pulang'])}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
-        // Pembolehubah untuk simpan rujukan murid yang sedang diedit di modal admin
         let rowEditAdmin = null;
 
-        // Fungsi Pop-up Admin
         function bukaPopupAdmin(murid) {
             rowEditAdmin = murid.rowNumber;
             document.getElementById('adminModal').classList.remove('hidden');
-            document.getElementById('modalNama').value = murid.Nama || "";
-            document.getElementById('modalKelas').value = murid.Kelas || "";
-            document.getElementById('modalAlamat').value = murid.Alamat || "";
-            document.getElementById('modalEmail').value = murid.Email || "";
+            document.getElementById('modalNama').value = murid['Nama'] || "";
+            document.getElementById('modalKelas').value = murid['Kelas'] || "";
+            document.getElementById('modalAlamat').value = murid['Alamat'] || "";
+            document.getElementById('modalTelefon').value = murid['No. Telefon'] || "";
+            document.getElementById('modalSiri').value = murid['No. Siri Jubah'] || "";
+            
+            document.getElementById('modalPinjamJubah').value = (murid['Pinjam Jubah'] === "Ya" || murid['Pinjam Jubah'] === "ya") ? "Ya" : "";
+            document.getElementById('modalTelahPulang').value = (murid['Telah Pulang'] === "Ya" || murid['Telah Pulang'] === "ya") ? "Ya" : "";
+            
+            document.getElementById('modalTextPinjam').innerText = formatTarikh(murid['Tarikh-Masa Pinjam']);
+            document.getElementById('modalTextPulang').innerText = formatTarikh(murid['Tarikh-Masa Pulang']);
         }
 
         function tutupPopupAdmin() {
@@ -285,16 +348,18 @@
             rowEditAdmin = null;
         }
 
-        // Fungsi Simpan Perubahan oleh Admin
         async function simpanDataAdmin() {
             if (!rowEditAdmin) return;
 
             const payload = {
                 action: "updateMurid",
+                type: "Admin",
                 rowNumber: parseInt(rowEditAdmin),
                 alamat: document.getElementById('modalAlamat').value,
-                email: document.getElementById('modalEmail').value
-                // Tambahkan atau sesuaikan parameter jika admin ingin kemaskini nama/kelas/status di Apps Script anda
+                noTelefon: document.getElementById('modalTelefon').value,
+                noSiriJubah: document.getElementById('modalSiri').value,
+                pinjamJubah: document.getElementById('modalPinjamJubah').value,
+                telahPulang: document.getElementById('modalTelahPulang').value
             };
 
             try {
@@ -307,49 +372,38 @@
                 if (hasil.status === "success") {
                     alert("Data berjaya dikemaskini oleh Admin!");
                     tutupPopupAdmin();
-                    loadDataDariSheet(); // Segarkan senarai jadual
+                    loadDataDariSheet();
                 }
             } catch (error) {
                 alert("Gagal mengemaskini data admin.");
             }
         }
 
-        // Fungsi Cetak Laporan
-        function cetakLaporan() {
-            window.print();
-        }
-    // Pembolehubah untuk simpan carta
-        let cartaJubah = null;
-
-        // Fungsi Bina/Kemas kini Carta Analisis
         function kemaskiniCarta(data) {
             let sudahPulang = 0;
-            let belumPulang = 0;
+            let dipinjam = 0;
+            let belumPinjam = 0;
 
-            // Kira jumlah berdasarkan status (Pastikan ejaan sama dengan Google Sheet)
             data.forEach(murid => {
-                if (murid.Status === 'Telah Pulang') {
-                    sudahPulang++;
-                } else {
-                    belumPulang++;
-                }
+                const status = dapatkanStatusTeks(murid);
+                if (status === "Telah Pulang") sudahPulang++;
+                else if (status === "Dipinjam") dipinjam++;
+                else belumPinjam++;
             });
 
             const ctx = document.getElementById('cartaStatus');
 
-            // Reset carta jika ia sudah wujud (elak carta bertindih bila di-refresh)
             if (cartaJubah != null) {
                 cartaJubah.destroy();
             }
 
-            // Bina carta donat
             cartaJubah = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['Telah Pulang', 'Belum Pulang'],
+                    labels: ['Telah Pulang', 'Dipinjam', 'Belum Pinjam'],
                     datasets: [{
-                        data: [sudahPulang, belumPulang],
-                        backgroundColor: ['#16a34a', '#dc2626'], // Hijau untuk pulang, Merah untuk belum
+                        data: [sudahPulang, dipinjam, belumPinjam],
+                        backgroundColor: ['#16a34a', '#f59e0b', '#dc2626'],
                         borderWidth: 2,
                         hoverOffset: 4
                     }]
@@ -357,12 +411,14 @@
                 options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            position: 'bottom',
-                        }
+                        legend: { position: 'bottom' }
                     }
                 }
             });
+        }
+
+        function cetakLaporan() {
+            window.print();
         }
     </script>
 </body>
